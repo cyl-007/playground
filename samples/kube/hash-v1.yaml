@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: playground
+spec:
+  host: playground
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+#        httpHeaderName: User
+#        useSourceIp: true
+        httpCookie:
+          name: user
+          ttl: 1h
+  subsets:
+    - name: v1
+      labels:
+        version: v1

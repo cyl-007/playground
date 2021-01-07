@@ -1,0 +1,23 @@
+while true
+do
+curl playground:8080/echo?msg=1
+sleep 1
+done
+
+FORTIO_POD=$(kubectl get pods -lapp=fortio -o 'jsonpath={.items[0].metadata.name}')
+
+kubectl exec -it "$FORTIO_POD"  -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -t 0 playground:8080/echo?msg=1
+
+curl -HUser:cz playground:8080/echo?msg=1
+
+curl --cookie "user=abc" playground:8080/echo?msg=1
+
+curl -X PUT -d '500' 127.0.0.1:8080/fault
+
+FORTIO_POD=$(kubectl get pods -lapp=fortio -o 'jsonpath={.items[0].metadata.name}')
+
+kubectl exec -it "$FORTIO_POD"  -c fortio -- /usr/bin/fortio load -curl playground:8080/echo?msg=1
+
+kubectl exec -it "$FORTIO_POD"  -c fortio -- /usr/bin/fortio load -c 1 -qps 1 -n 100 playground:8080/echo?msg=1
+
+kubectl exec -it "$FORTIO_POD"  -c fortio -- /usr/bin/fortio load -c 1 -qps 5 -t 0 playground:8080/echo?msg=1
